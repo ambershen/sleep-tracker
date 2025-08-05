@@ -1,57 +1,69 @@
-# React + TypeScript + Vite
+# SleepTracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, glass-morphic web application that helps users understand and improve their sleep patterns.
 
-Currently, two official plugins are available:
+## ✨ Key Features
+1. **Dashboard** – At-a-glance metrics: total hours, sleep score, and quality trend, with purple glass UI cards.
+2. **Sleep Log** – Friendly form to record date, bedtime, wake time, 1-10 quality rating, and notes. Prevents duplicate entries.
+3. **Statistics & Analytics** – Interactive charts (average duration, quality heatmap, bedtime vs. wake trends) powered by Chart.js.
+4. **Insights & Recommendations** – AI-style tips plus smart bedtime reminder based on user goals and recent patterns.
+5. **Themes & Design** – Tailwind CSS, lilac background, liquid-glass cards, responsive layout, dark-mode toggle.
+6. **Local Persistence** – Zustand + localStorage keep data even after refresh.
+7. **Unit Tests** – Vitest + React Testing Library with comprehensive tests for `SleepLog`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🏗️ Tech Stack
+- React 18 + TypeScript
+- Vite for lightning-fast dev/build
+- Tailwind CSS for utility styling
+- Zustand (state) with middleware `persist`
+- Chart.js & react-chartjs-2 for data viz
+- Vitest / RTL / jest-dom for testing
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
+```bash
+# install deps
+npm install
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# start dev server
+npm run dev
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# run unit tests (watch)
+npm test
+```
+The app runs at `http://localhost:5173/` by default.
+
+## 📂 Project Structure
+```
+src/
+ ├─ pages/       # Dashboard, SleepLog, Analytics, Insights
+ ├─ components/  # Navigation, Empty states, shared UI
+ ├─ store/       # Zustand sleepStore
+ ├─ hooks/       # useTheme toggle
+ ├─ test/        # global Vitest setup
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📝 Product Requirements Snapshot
+| Requirement | Implementation |
+|-------------|----------------|
+| Log daily sleep | SleepLog form with validation, notes, quality slider & stars |
+| Analyze patterns | Analytics page with dynamic charts + stats helpers |
+| Smart insights | Recommendations card & bedtime reminder logic |
+| Persistent data | Zustand `persist` to localStorage |
+| Engaging UI | Purple palette, glassmorphism, responsive & accessible |
+| Testing | 16 tests covering rendering, interactions, error states |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📜 Scripts
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Launch dev server with HMR |
+| `npm run build` | Production build |
+| `npm run preview` | Preview built app |
+| `npm run lint` | ESLint code check |
+| `npm test` | Vitest watch mode |
+| `npm run test:coverage` | Generate coverage report |
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 🌐 Deployment
+The project is ready for Vercel (see `vercel.json`) or any static host.
+
+---
+Crafted with ❤️ and plenty of restful nights.
