@@ -1,14 +1,26 @@
 import { useSleepStore } from '@/store/sleepStore';
-import { Clock, TrendingUp, Calendar, Star, Moon, Sun } from 'lucide-react';
+import { Clock, TrendingUp, Calendar, Star, Moon, Sun, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDemo } from '@/contexts/DemoContext';
 
 const Dashboard = () => {
   const { entries, getAverageQuality, getAverageDuration, getSleepStreak } = useSleepStore();
+  const { isDemoMode, demoData } = useDemo();
   
-  const recentEntries = entries.slice(0, 7);
-  const averageQuality = getAverageQuality();
-  const averageDuration = getAverageDuration();
-  const sleepStreak = getSleepStreak();
+  // Use demo data when in demo mode
+  const currentEntries = isDemoMode ? demoData.sleepEntries : entries;
+  const recentEntries = currentEntries.slice(0, 7);
+  
+  // Calculate stats from current data
+  const averageQuality = isDemoMode 
+    ? currentEntries.slice(0, 7).reduce((sum, entry) => sum + entry.quality, 0) / Math.min(7, currentEntries.length)
+    : getAverageQuality();
+    
+  const averageDuration = isDemoMode
+    ? currentEntries.slice(0, 7).reduce((sum, entry) => sum + entry.duration, 0) / Math.min(7, currentEntries.length)
+    : getAverageDuration();
+    
+  const sleepStreak = isDemoMode ? demoData.user.streak : getSleepStreak();
   
   // Calculate sleep score (0-100)
   const sleepScore = Math.round(
@@ -25,28 +37,44 @@ const Dashboard = () => {
   };
 
   const getQualityColor = (quality: number) => {
-    return 'text-yellow-300';
+    if (quality >= 8) return 'text-green-600';
+    if (quality >= 6) return 'text-accent';
+    if (quality >= 4) return 'text-yellow-500';
+    return 'text-red-500';
   };
 
   const getScoreColor = (score: number) => {
-    return 'text-yellow-300';
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-accent';
+    if (score >= 40) return 'text-yellow-500';
+    return 'text-red-500';
   };
 
   return (
-    <div className="min-h-screen bg-purple-100/50">
+    <div className="min-h-screen bg-background-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Sleep Dashboard</h1>
-          <p className="text-gray-600 mt-2">Track your sleep patterns and improve your rest</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="heading-primary">Sleep Dashboard</h1>
+              <p className="text-background-dark/70 mt-2">Track your sleep patterns and improve your rest</p>
+            </div>
+            {isDemoMode && (
+              <div className="flex items-center space-x-2 bg-accent/10 text-accent px-4 py-2 rounded-lg">
+                <Eye className="h-5 w-5" />
+                <span className="font-medium">Demo Mode - Read Only</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sleep Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Sleep Score */}
-          <div className="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg p-6">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Sleep Score</h3>
-              <Moon className="h-6 w-6 text-purple-500" />
+              <h3 className="text-lg font-semibold text-primary-dark">Sleep Score</h3>
+              <Moon className="h-6 w-6 text-accent" />
             </div>
             <div className="text-center">
               <div className={cn('text-4xl font-bold mb-2', getScoreColor(sleepScore))}>
@@ -65,68 +93,70 @@ const Dashboard = () => {
           </div>
 
           {/* Average Duration */}
-          <div className="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg p-6">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Average Duration</h3>
-              <Clock className="h-6 w-6 text-purple-500" />
+              <h3 className="text-lg font-semibold text-primary-dark">Average Duration</h3>
+              <Clock className="h-6 w-6 text-accent" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-bold text-primary-dark mb-2">
               {averageDuration.toFixed(1)}h
             </div>
-            <p className="text-sm text-gray-600">Last 7 days</p>
+            <p className="text-sm text-background-dark/60">Last 7 days</p>
           </div>
 
           {/* Average Quality */}
-          <div className="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg p-6">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Avg Quality</h3>
-              <Star className="h-6 w-6 text-purple-500" />
+              <h3 className="text-lg font-semibold text-primary-dark">Avg Quality</h3>
+              <Star className="h-6 w-6 text-accent" />
             </div>
             <div className={cn('text-3xl font-bold mb-2', getQualityColor(averageQuality))}>
               {averageQuality.toFixed(1)}/10
             </div>
-            <p className="text-sm text-gray-600">Last 7 days</p>
+            <p className="text-sm text-background-dark/60">Last 7 days</p>
           </div>
 
           {/* Sleep Streak */}
-          <div className="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg p-6">
+          <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Sleep Streak</h3>
-              <TrendingUp className="h-6 w-6 text-purple-500" />
+              <h3 className="text-lg font-semibold text-primary-dark">Sleep Streak</h3>
+              <TrendingUp className="h-6 w-6 text-accent" />
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-bold text-primary-dark mb-2">
               {sleepStreak}
             </div>
-            <p className="text-sm text-gray-600">Days logged</p>
+            <p className="text-sm text-background-dark/60">Days logged</p>
           </div>
         </div>
 
         {/* Recent Entries */}
-        <div className="relative bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg p-6">
+        <div className="card">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Sleep Entries</h2>
-            <Calendar className="h-6 w-6 text-purple-500" />
+            <h2 className="text-xl font-semibold text-primary-dark">Recent Sleep Entries</h2>
+            <Calendar className="h-6 w-6 text-accent" />
           </div>
           
           {recentEntries.length === 0 ? (
             <div className="text-center py-12">
-              <Moon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg mb-2">No sleep entries yet</p>
-              <p className="text-gray-500">Start tracking your sleep to see insights here</p>
+              <Moon className="h-12 w-12 text-background-dark/40 mx-auto mb-4" />
+              <p className="text-background-dark/70 text-lg mb-2">No sleep entries yet</p>
+              <p className="text-background-dark/50">
+                {isDemoMode ? 'Try the demo to see sample data' : 'Start tracking your sleep to see insights here'}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
               {recentEntries.map((entry) => (
-                <div key={entry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div key={entry.id} className="flex items-center justify-between p-4 bg-background-light/50 rounded-lg border border-primary/10">
                   <div className="flex items-center space-x-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-primary-dark">
                       {new Date(entry.date).toLocaleDateString('en-US', {
                         weekday: 'short',
                         month: 'short',
                         day: 'numeric'
                       })}
                     </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2 text-sm text-background-dark/60">
                       <Moon className="h-4 w-4" />
                       <span>{formatTime(entry.bedtime)}</span>
                       <span>→</span>
@@ -136,7 +166,7 @@ const Dashboard = () => {
                   </div>
                   
                   <div className="flex items-center space-x-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-primary-dark">
                       {entry.duration.toFixed(1)}h
                     </div>
                     <div className="flex items-center space-x-1">
@@ -146,8 +176,8 @@ const Dashboard = () => {
                           className={cn(
                             'h-4 w-4',
                             i < entry.quality / 2
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
+                              ? 'text-accent fill-current'
+                              : 'text-background-dark/30'
                           )}
                         />
                       ))}

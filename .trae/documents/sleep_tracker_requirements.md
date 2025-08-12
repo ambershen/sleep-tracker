@@ -10,21 +10,32 @@ The product solves the problem of poor sleep awareness by providing users with a
 
 ### 2.1 User Roles
 
-This application uses a single-user approach with default user access to all features, eliminating the need for complex authentication in the MVP version.
+| Role | Registration Method | Core Permissions |
+|------|---------------------|------------------|
+| Registered User | Email registration with password | Can create account, log sleep data, view personal analytics, manage profile |
+| Guest User | No registration required | Can view demo data and app features (read-only access) |
 
 ### 2.2 Feature Module
 
 Our sleep tracker consists of the following main pages:
 
-1. **Dashboard**: sleep overview, recent entries, quick stats display
-2. **Sleep Log Entry**: daily sleep input form, sleep quality rating, notes section
-3. **Statistics & Analytics**: sleep duration trends, quality patterns, weekly/monthly views
-4. **Insights & Recommendations**: personalized sleep tips, habit formation guidance, sleep score analysis, bedtime reminders
+1. **Authentication Pages**: sign up form, sign in form, password reset
+2. **User Profile**: account settings, personal information, preferences management
+3. **Dashboard**: sleep overview, recent entries, quick stats display
+4. **Sleep Log Entry**: daily sleep input form, sleep quality rating, notes section
+5. **Statistics & Analytics**: sleep duration trends, quality patterns, weekly/monthly views
+6. **Insights & Recommendations**: personalized sleep tips, habit formation guidance, sleep score analysis, bedtime reminders
 
 ### 2.3 Page Details
 
 | Page Name                  | Module Name           | Feature description                                                                                  |
 | -------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------- |
+| Authentication             | Sign Up Form          | Create new account with email, password, and basic profile information                              |
+| Authentication             | Sign In Form          | User login with email/password, remember me option, forgot password link                            |
+| Authentication             | Password Reset        | Send reset email, verify token, update password securely                                            |
+| User Profile               | Account Settings      | Update email, password, notification preferences, account deletion                                  |
+| User Profile               | Personal Information  | Manage name, age, sleep goals, timezone settings                                                    |
+| User Profile               | Data Export           | Download personal sleep data in CSV/JSON format                                                     |
 | Dashboard                  | Sleep Overview        | Display current sleep streak, average sleep duration, and sleep quality score for quick reference    |
 | Dashboard                  | Recent Entries        | Show last 7 days of sleep entries with basic details (bedtime, wake time, duration)                  |
 | Dashboard                  | Quick Stats           | Present key metrics like weekly average, best/worst sleep days, and improvement trends               |
@@ -40,24 +51,47 @@ Our sleep tracker consists of the following main pages:
 
 ## 3. Core Process
 
-The main user flow involves daily sleep logging and periodic review of sleep patterns:
+### 3.1 New User Flow
+1. User visits landing page and chooses to sign up
+2. User completes registration with email, password, and basic profile info
+3. User receives email verification and activates account
+4. User signs in and is redirected to Dashboard
+5. User sets up sleep goals and preferences in Profile
 
-1. User visits Dashboard to see current sleep status and recent entries
-2. User navigates to Sleep Log Entry to input daily sleep data (bedtime, wake time, quality)
-3. User adds optional notes about sleep experience and factors
-4. User reviews Statistics & Analytics to understand sleep patterns and trends
-5. User checks Insights & Recommendations for personalized advice and sleep improvement tips
-6. User returns to Dashboard for ongoing monitoring and motivation
+### 3.2 Returning User Flow
+1. User signs in with email and password
+2. User visits Dashboard to see current sleep status and recent entries
+3. User navigates to Sleep Log Entry to input daily sleep data (bedtime, wake time, quality)
+4. User adds optional notes about sleep experience and factors
+5. User reviews Statistics & Analytics to understand sleep patterns and trends
+6. User checks Insights & Recommendations for personalized advice and sleep improvement tips
+7. User can manage account settings and profile information as needed
+
+### 3.3 Guest User Flow
+1. User visits landing page and chooses to explore demo
+2. User views sample dashboard with demo sleep data
+3. User can browse all features in read-only mode
+4. User is prompted to sign up to save personal data
 
 ```mermaid
 graph TD
-  A[Dashboard] --> B[Sleep Log Entry]
-  A --> C[Statistics & Analytics]
-  A --> D[Insights & Recommendations]
-  B --> A
-  C --> A
-  D --> A
-  C --> D
+  A[Landing Page] --> B[Sign Up]
+  A --> C[Sign In]
+  A --> D[Demo Mode]
+  B --> E[Email Verification]
+  E --> F[Dashboard]
+  C --> F[Dashboard]
+  D --> G[Demo Dashboard]
+  G --> B
+  F --> H[Sleep Log Entry]
+  F --> I[Statistics & Analytics]
+  F --> J[Insights & Recommendations]
+  F --> K[User Profile]
+  H --> F
+  I --> F
+  J --> F
+  K --> F
+  I --> J
 ```
 
 ## 4. User Interface Design

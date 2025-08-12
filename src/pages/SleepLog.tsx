@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useSleepStore } from '@/store/sleepStore';
-import { Moon, Sun, Star, Save, Calendar } from 'lucide-react';
+import { useDemo } from '@/contexts/DemoContext';
+import { Moon, Sun, Star, Save, Calendar, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const SleepLog = () => {
   const { addEntry, entries } = useSleepStore();
+  const { isDemoMode } = useDemo();
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     bedtime: '',
@@ -16,6 +18,11 @@ const SleepLog = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isDemoMode) {
+      toast.error('Demo mode is read-only. Sign up to save your sleep data!');
+      return;
+    }
     
     if (!formData.bedtime || !formData.wakeTime) {
       toast.error('Please fill in both bedtime and wake time');
@@ -73,19 +80,29 @@ const SleepLog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-purple-100/50">
+    <div className="min-h-screen bg-background-light">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Log Sleep Entry</h1>
-          <p className="text-gray-600 mt-2">Record your sleep data to track patterns and improve your rest</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="heading-primary">Log Sleep Entry</h1>
+              <p className="text-background-dark/70 mt-2">Record your sleep data to track patterns and improve your rest</p>
+            </div>
+            {isDemoMode && (
+              <div className="flex items-center space-x-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
+                <Eye className="h-4 w-4" />
+                <span>Demo Mode - Read Only</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="card">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Date */}
             <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-                <Calendar className="inline h-4 w-4 mr-2" />
+              <label htmlFor="date" className="block text-sm font-medium text-primary-dark mb-2">
+                <Calendar className="inline h-4 w-4 mr-2 text-accent" />
                 Date
               </label>
               <input
@@ -93,15 +110,15 @@ const SleepLog = () => {
                 id="date"
                 value={formData.date}
                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-white"
                 required
               />
             </div>
 
             {/* Bedtime */}
             <div>
-              <label htmlFor="bedtime" className="block text-sm font-medium text-gray-700 mb-2">
-                <Moon className="inline h-4 w-4 mr-2" />
+              <label htmlFor="bedtime" className="block text-sm font-medium text-primary-dark mb-2">
+                <Moon className="inline h-4 w-4 mr-2 text-accent" />
                 Bedtime
               </label>
               <input
@@ -109,15 +126,15 @@ const SleepLog = () => {
                 id="bedtime"
                 value={formData.bedtime}
                 onChange={(e) => setFormData(prev => ({ ...prev, bedtime: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-white"
                 required
               />
             </div>
 
             {/* Wake Time */}
             <div>
-              <label htmlFor="wakeTime" className="block text-sm font-medium text-gray-700 mb-2">
-                <Sun className="inline h-4 w-4 mr-2" />
+              <label htmlFor="wakeTime" className="block text-sm font-medium text-primary-dark mb-2">
+                <Sun className="inline h-4 w-4 mr-2 text-accent" />
                 Wake Time
               </label>
               <input
@@ -125,15 +142,15 @@ const SleepLog = () => {
                 id="wakeTime"
                 value={formData.wakeTime}
                 onChange={(e) => setFormData(prev => ({ ...prev, wakeTime: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-white"
                 required
               />
             </div>
 
             {/* Sleep Quality */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
-                <Star className="inline h-4 w-4 mr-2" />
+              <label className="block text-sm font-medium text-primary-dark mb-4">
+                <Star className="inline h-4 w-4 mr-2 text-accent" />
                 Sleep Quality
               </label>
               
@@ -146,9 +163,12 @@ const SleepLog = () => {
                     max="10"
                     value={formData.quality}
                     onChange={(e) => handleQualityChange(parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #3498DB 0%, #3498DB ${(formData.quality - 1) * 11.11}%, #e5e7eb ${(formData.quality - 1) * 11.11}%, #e5e7eb 100%)`
+                    }}
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-background-dark/50 mt-1">
                     <span>1</span>
                     <span>5</span>
                     <span>10</span>
@@ -178,8 +198,8 @@ const SleepLog = () => {
                         className={cn(
                           'h-6 w-6 transition-colors duration-150',
                           i < formData.quality
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300 hover:text-yellow-200'
+                            ? 'text-accent fill-current'
+                            : 'text-background-dark/30 hover:text-accent/50'
                         )}
                       />
                     </button>
@@ -190,7 +210,7 @@ const SleepLog = () => {
 
             {/* Notes */}
             <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="notes" className="block text-sm font-medium text-primary-dark mb-2">
                 Notes (Optional)
               </label>
               <textarea
@@ -199,9 +219,10 @@ const SleepLog = () => {
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Add any notes about your sleep... (e.g., stress levels, caffeine intake, exercise, room temperature)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                className="w-full px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent resize-none bg-white"
+                maxLength={500}
               />
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-background-dark/50 mt-1">
                 {formData.notes.length}/500 characters
               </div>
             </div>
@@ -210,7 +231,7 @@ const SleepLog = () => {
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full flex items-center justify-center space-x-2 bg-purple-600 text-white py-3 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 font-medium"
+                className="btn-primary w-full flex items-center justify-center space-x-2 py-3 px-4 font-medium"
               >
                 <Save className="h-5 w-5" />
                 <span>Save Sleep Entry</span>
@@ -220,9 +241,9 @@ const SleepLog = () => {
         </div>
 
         {/* Quick Tips */}
-        <div className="mt-8 bg-purple-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-purple-900 mb-3">💡 Quick Tips</h3>
-          <ul className="space-y-2 text-sm text-purple-800">
+        <div className="mt-8 bg-accent/10 rounded-lg p-6 border border-accent/20">
+          <h3 className="text-lg font-semibold text-primary-dark mb-3">💡 Quick Tips</h3>
+          <ul className="space-y-2 text-sm text-background-dark/70">
             <li>• Log your sleep as soon as you wake up for better accuracy</li>
             <li>• Consider factors like stress, caffeine, and exercise in your notes</li>
             <li>• Aim for consistency in your sleep schedule</li>

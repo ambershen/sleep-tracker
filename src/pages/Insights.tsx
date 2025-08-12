@@ -1,16 +1,24 @@
 import { useState, useMemo } from 'react';
 import { useSleepStore } from '@/store/sleepStore';
-import { Lightbulb, Bell, Clock, TrendingUp, Target, CheckCircle, AlertCircle, Settings } from 'lucide-react';
+import { useDemo } from '@/contexts/DemoContext';
+import { Lightbulb, Bell, Clock, TrendingUp, Target, CheckCircle, AlertCircle, Settings, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const Insights = () => {
   const { entries, goals, updateGoals, getAverageQuality, getAverageDuration } = useSleepStore();
+  const { isDemoMode, demoData } = useDemo();
+  
+  const currentEntries = isDemoMode ? demoData.sleepEntries : entries;
   const [showReminderSettings, setShowReminderSettings] = useState(false);
   
-  const recentEntries = entries.slice(0, 14); // Last 2 weeks
-  const averageQuality = getAverageQuality(14);
-  const averageDuration = getAverageDuration(14);
+  const recentEntries = currentEntries.slice(0, 14); // Last 2 weeks
+  const averageQuality = isDemoMode ? 
+    (currentEntries.length > 0 ? currentEntries.slice(0, 14).reduce((sum, entry) => sum + entry.quality, 0) / Math.min(currentEntries.length, 14) : 0) :
+    getAverageQuality(14);
+  const averageDuration = isDemoMode ?
+    (currentEntries.length > 0 ? currentEntries.slice(0, 14).reduce((sum, entry) => sum + entry.duration, 0) / Math.min(currentEntries.length, 14) : 0) :
+    getAverageDuration(14);
 
   const insights = useMemo(() => {
     const insights = [];
@@ -162,53 +170,75 @@ const Insights = () => {
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'success': return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'success': return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'warning': return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      default: return <Lightbulb className="h-5 w-5 text-purple-500" />;
+      default: return <Lightbulb className="h-5 w-5 text-accent" />;
     }
   };
 
   const getInsightBorderColor = (type: string) => {
     switch (type) {
-      case 'success': return 'border-l-green-500';
+      case 'success': return 'border-l-green-600';
       case 'warning': return 'border-l-yellow-500';
-      default: return 'border-l-purple-500';
+      default: return 'border-l-accent';
     }
   };
 
   const handleReminderToggle = () => {
+    if (isDemoMode) {
+      toast.info('Feature disabled in demo mode');
+      return;
+    }
     updateGoals({ reminderEnabled: !goals.reminderEnabled });
     toast.success(goals.reminderEnabled ? 'Bedtime reminders disabled' : 'Bedtime reminders enabled');
   };
 
   const handleReminderTimeChange = (minutes: number) => {
+    if (isDemoMode) {
+      toast.info('Feature disabled in demo mode');
+      return;
+    }
     updateGoals({ reminderMinutesBefore: minutes });
     toast.success(`Reminder set to ${minutes} minutes before bedtime`);
   };
 
   const handleTargetDurationChange = (hours: number) => {
+    if (isDemoMode) {
+      toast.info('Feature disabled in demo mode');
+      return;
+    }
     updateGoals({ targetSleepDuration: hours });
     toast.success(`Target sleep duration set to ${hours} hours`);
   };
 
   return (
-    <div className="min-h-screen bg-purple-100/50">
+    <div className="min-h-screen bg-background-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Sleep Insights &amp; Recommendations</h1>
-          <p className="text-gray-600 mt-2">Personalized tips and insights to improve your sleep</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="heading-primary">Sleep Insights &amp; Recommendations</h1>
+              <p className="text-background-dark/70 mt-2">Personalized tips and insights to improve your sleep</p>
+            </div>
+            {isDemoMode && (
+              <div className="flex items-center space-x-2 bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
+                <Eye className="h-4 w-4" />
+                <span>Demo Mode - Read Only</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bedtime Reminder Settings */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="card mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <Bell className="h-6 w-6 text-purple-500" />
-              <h2 className="text-xl font-semibold text-gray-900">Bedtime Reminders</h2>
+              <Bell className="h-6 w-6 text-accent" />
+              <h2 className="text-xl font-semibold text-primary-dark">Bedtime Reminders</h2>
             </div>
             <button
               onClick={() => setShowReminderSettings(!showReminderSettings)}
-              className="text-purple-600 hover:text-purple-700"
+              className="text-accent hover:text-accent-600"
             >
               <Settings className="h-5 w-5" />
             </button>
@@ -217,14 +247,14 @@ const Insights = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-700">Enable bedtime reminders</p>
-                <p className="text-sm text-gray-500">Get notified when it's time to start your bedtime routine</p>
+                <p className="text-primary-dark">Enable bedtime reminders</p>
+                <p className="text-sm text-background-dark/60">Get notified when it's time to start your bedtime routine</p>
               </div>
               <button
                 onClick={handleReminderToggle}
                 className={cn(
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200',
-                  goals.reminderEnabled ? 'bg-purple-600' : 'bg-gray-300'
+                  goals.reminderEnabled ? 'bg-accent' : 'bg-background-dark/30'
                 )}
               >
                 <span
@@ -237,15 +267,15 @@ const Insights = () => {
             </div>
             
             {showReminderSettings && (
-              <div className="space-y-4 pt-4 border-t border-gray-200">
+              <div className="space-y-4 pt-4 border-t border-background-dark/20">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-primary-dark mb-2">
                     Target Sleep Duration
                   </label>
                   <select
                     value={goals.targetSleepDuration}
                     onChange={(e) => handleTargetDurationChange(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-background-dark/30 rounded-md focus:outline-none focus:ring-2 focus:ring-accent bg-white"
                   >
                     {[6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10].map(hours => (
                       <option key={hours} value={hours}>{hours} hours</option>
@@ -254,13 +284,13 @@ const Insights = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-primary-dark mb-2">
                     Reminder Time (minutes before optimal bedtime)
                   </label>
                   <select
                     value={goals.reminderMinutesBefore}
                     onChange={(e) => handleReminderTimeChange(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-background-dark/30 rounded-md focus:outline-none focus:ring-2 focus:ring-accent bg-white"
                   >
                     {[15, 30, 45, 60, 90].map(minutes => (
                       <option key={minutes} value={minutes}>{minutes} minutes</option>
@@ -268,15 +298,15 @@ const Insights = () => {
                   </select>
                 </div>
                 
-                <div className="bg-purple-50 p-4 rounded-lg">
+                <div className="bg-accent/10 p-4 rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
-                    <Clock className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-purple-900">Optimal Bedtime</span>
+                    <Clock className="h-5 w-5 text-accent" />
+                    <span className="font-medium text-primary-dark">Optimal Bedtime</span>
                   </div>
-                  <p className="text-purple-800">
+                  <p className="text-primary-dark">
                     Based on your {goals.targetSleepDuration}h sleep goal: <strong>{calculateOptimalBedtime()}</strong>
                   </p>
-                  <p className="text-sm text-purple-700 mt-1">
+                  <p className="text-sm text-background-dark/70 mt-1">
                     Reminder will be sent at {goals.reminderMinutesBefore} minutes before
                   </p>
                 </div>
@@ -286,10 +316,10 @@ const Insights = () => {
         </div>
 
         {/* Personalized Insights */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="card mb-8">
           <div className="flex items-center space-x-2 mb-6">
-            <TrendingUp className="h-6 w-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Your Sleep Insights</h2>
+            <TrendingUp className="h-6 w-6 text-accent" />
+            <h2 className="text-xl font-semibold text-primary-dark">Your Sleep Insights</h2>
           </div>
           
           <div className="space-y-4">
@@ -297,16 +327,16 @@ const Insights = () => {
               <div
                 key={index}
                 className={cn(
-                  'border-l-4 bg-gray-50 p-4 rounded-r-lg',
+                  'border-l-4 bg-background-light p-4 rounded-r-lg',
                   getInsightBorderColor(insight.type)
                 )}
               >
                 <div className="flex items-start space-x-3">
                   {getInsightIcon(insight.type)}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">{insight.title}</h3>
-                    <p className="text-gray-700 mb-2">{insight.description}</p>
-                    <p className="text-sm font-medium text-purple-600">💡 {insight.action}</p>
+                    <h3 className="font-semibold text-primary-dark mb-1">{insight.title}</h3>
+                    <p className="text-background-dark/70 mb-2">{insight.description}</p>
+                    <p className="text-sm font-medium text-accent">💡 {insight.action}</p>
                   </div>
                 </div>
               </div>
@@ -315,21 +345,21 @@ const Insights = () => {
         </div>
 
         {/* Sleep Habit Formation Guide */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="card">
           <div className="flex items-center space-x-2 mb-6">
-            <Target className="h-6 w-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Sleep Habit Formation Guide</h2>
+            <Target className="h-6 w-6 text-accent" />
+            <h2 className="text-xl font-semibold text-primary-dark">Sleep Habit Formation Guide</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {habitTips.map((tip, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{tip.title}</h3>
-                <p className="text-gray-600 text-sm mb-3">{tip.description}</p>
+              <div key={index} className="border border-background-dark/20 rounded-lg p-4">
+                <h3 className="font-semibold text-primary-dark mb-2">{tip.title}</h3>
+                <p className="text-background-dark/70 text-sm mb-3">{tip.description}</p>
                 <ul className="space-y-1">
                   {tip.tips.map((item, tipIndex) => (
-                    <li key={tipIndex} className="text-sm text-gray-700 flex items-center space-x-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                    <li key={tipIndex} className="text-sm text-background-dark/70 flex items-center space-x-2">
+                      <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
