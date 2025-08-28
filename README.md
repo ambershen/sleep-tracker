@@ -66,4 +66,4 @@ src/
 The project is ready for Vercel (see `vercel.json`) or any static host.
 
 ---
-Crafted with ❤️ and plenty of restful nights.
+Crafted with ❤️ and plenty of restful nights. TRAE 2.0

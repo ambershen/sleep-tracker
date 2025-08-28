@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface DemoContextType {
   isDemoMode: boolean;
@@ -102,6 +103,7 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const startDemo = () => {
     setIsDemoMode(true);
     localStorage.setItem('sleeptracker_demo_mode', 'true');
+    // Navigation will be handled by the component using this hook
   };
 
   const exitDemo = () => {

@@ -1,11 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDemo } from '@/contexts/DemoContext';
 import { Moon, BarChart3, Lightbulb, User, Eye, LogIn, UserPlus, Clock, Star, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Landing = () => {
   const { startDemo } = useDemo();
+  const navigate = useNavigate();
+
+  const handleStartDemo = () => {
+    startDemo();
+    navigate('/demo');
+  };
 
   const features = [
     {
@@ -37,7 +43,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-100">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -67,7 +73,7 @@ const Landing = () => {
               </Link>
               
               <button
-                onClick={startDemo}
+                onClick={handleStartDemo}
                 className="btn-secondary flex items-center space-x-2 px-8 py-3 text-lg font-medium"
               >
                 <Eye className="h-5 w-5" />
@@ -87,7 +93,7 @@ const Landing = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-16 bg-white">
+      <div className="py-16 bg-white/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-primary-dark mb-4">
@@ -122,7 +128,7 @@ const Landing = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="py-16 bg-accent/5">
+      <div className="py-16 bg-purple-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-primary-dark mb-4">
@@ -155,7 +161,7 @@ const Landing = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-16 bg-primary-dark">
+      <div className="py-16 bg-gradient-to-r from-purple-600 to-purple-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Improve Your Sleep?
@@ -174,7 +180,7 @@ const Landing = () => {
             </Link>
             
             <button
-              onClick={startDemo}
+              onClick={handleStartDemo}
               className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
             >
               <Eye className="h-5 w-5" />
